@@ -59,12 +59,22 @@ public:
     }
     /**
      * \~japanese-en 量子状態を計算基底の0状態に初期化する
-     * TODO: implement this
+     * MIKE
      */
     virtual void set_zero_norm_state() override {
-        throw NotImplementedException(
-            "set_zero_norm_state for QuantumStateGpu is not implemented "
-            "yet");
+
+        // zajisti spravne zarizeni
+        int current_device = get_current_device();
+        if (device_number != current_device) gpuSetDevice(device_number);
+
+        void* device_ptr = this->data();
+        size_t size_in_bytes = (size_t)_dim * sizeof(CTYPE);
+
+        cudaMemsetAsync(device_ptr, 0, size_in_bytes, this->_cuda_stream);
+
+        // throw NotImplementedException(
+        //     "set_zero_norm_state for QuantumStateGpu is not implemented "
+        //     "yet");
     }
     /**
      * \~japanese-en 量子状態を<code>comp_basis</code>の基底状態に初期化する
