@@ -62,15 +62,9 @@ public:
      * MIKE
      */
     virtual void set_zero_norm_state() override {
-
-        // zajisti spravne zarizeni
-        int current_device = get_current_device();
-        if (device_number != current_device) gpuSetDevice(device_number);
-
-        void* device_ptr = this->data();
-        size_t size_in_bytes = (size_t)_dim * sizeof(CTYPE);
-
-        cudaMemsetAsync(device_ptr, 0, size_in_bytes, this->_cuda_stream);
+        initialize_quantum_zero_state_host(
+            this->data(), _dim, _cuda_stream, device_number);
+    }
 
         // throw NotImplementedException(
         //     "set_zero_norm_state for QuantumStateGpu is not implemented "
