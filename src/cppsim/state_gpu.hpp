@@ -62,8 +62,8 @@ public:
      * MIKE
      */
     virtual void set_zero_norm_state() override {
-        initialize_quantum_zero_state_host(
-            this->data(), _dim, _cuda_stream, device_number);
+        //initialize_quantum_zero_state_host(
+        //    this->data(), _dim, _cuda_stream, device_number);
     }
 
     /**
