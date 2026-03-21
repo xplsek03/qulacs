@@ -318,6 +318,27 @@ public:
                 "const QuantumStateBase*): "
                 "cannot add DensityMatrix to StateVector");
         }
+        // perform: this->data() += coef * state->data() on GPU without
+        // modifying the input `state`
+        void* tmp = allocate_quantum_state_host(this->_dim, device_number);
+        copy_quantum_state_from_device_to_device(
+            tmp, state->data(), this->dim, _cuda_stream, device_number);
+        state_multiply_host(coef, tmp, this->dim, _cuda_stream, device_number);
+        state_add_host(tmp, this->data(), this->dim, _cuda_stream,
+            device_number);
+        release_quantum_state_host(tmp, device_number);
+    }
+
+    /*
+    
+    virtual void add_state_with_coef(
+        CPPCTYPE coef, const QuantumStateBase* state) override {
+        if (!state->is_state_vector()) {
+            throw InoperatableQuantumStateTypeException(
+                "Error: QuantumStateGpu::add_state_with_coef(CPPCTYPE, "
+                "const QuantumStateBase*): "
+                "cannot add DensityMatrix to StateVector");
+        }
         state_multiply_host(
             coef, this->data(), this->dim, _cuda_stream, device_number);
         state_add_host(state->data(), this->data(), this->dim, _cuda_stream,
@@ -325,6 +346,8 @@ public:
         state_multiply_host(CPPCTYPE(1) / coef, this->data(), this->dim,
             _cuda_stream, device_number);
     }
+    
+    */
 
     /**
      * \~japanese-en 量子状態を足しこむ (とりあえずの実装なので遅い)
@@ -338,12 +361,15 @@ public:
                 "const QuantumStateBase*): "
                 "cannot add DensityMatrix to StateVector");
         }
-        state_multiply_host(CPPCTYPE(1) / coef, this->data(), this->dim,
-            _cuda_stream, device_number);
-        state_add_host(state->data(), this->data(), this->dim, _cuda_stream,
+        // single-thread variant: perform the same safe GPU operation as
+        // add_state_with_coef
+        void* tmp = allocate_quantum_state_host(this->_dim, device_number);
+        copy_quantum_state_from_device_to_device(
+            tmp, state->data(), this->dim, _cuda_stream, device_number);
+        state_multiply_host(coef, tmp, this->dim, _cuda_stream, device_number);
+        state_add_host(tmp, this->data(), this->dim, _cuda_stream,
             device_number);
-        state_multiply_host(
-            coef, this->data(), this->dim, _cuda_stream, device_number);
+        release_quantum_state_host(tmp, device_number);
     }
 
     /**
