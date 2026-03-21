@@ -66,10 +66,6 @@ public:
             this->data(), _dim, _cuda_stream, device_number);
     }
 
-        // throw NotImplementedException(
-        //     "set_zero_norm_state for QuantumStateGpu is not implemented "
-        //     "yet");
-    }
     /**
      * \~japanese-en 量子状態を<code>comp_basis</code>の基底状態に初期化する
      *
