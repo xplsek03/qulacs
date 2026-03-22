@@ -318,15 +318,9 @@ public:
                 "const QuantumStateBase*): "
                 "cannot add DensityMatrix to StateVector");
         }
-        // perform: this->data() += coef * state->data() on GPU without
-        // modifying the input `state`
-        void* tmp = allocate_quantum_state_host(this->_dim, device_number);
-        copy_quantum_state_from_device_to_device(
-            tmp, state->data(), this->dim, _cuda_stream, device_number);
-        state_multiply_host(coef, tmp, this->dim, _cuda_stream, device_number);
-        state_add_host(tmp, this->data(), this->dim, _cuda_stream,
-            device_number);
-        release_quantum_state_host(tmp, device_number);
+        // fused GPU operation: this->data() += coef * state->data()
+        state_add_scaled_host(coef, state->data(), this->data(), this->dim,
+            _cuda_stream, device_number);
     }
 
     /*
@@ -361,15 +355,9 @@ public:
                 "const QuantumStateBase*): "
                 "cannot add DensityMatrix to StateVector");
         }
-        // single-thread variant: perform the same safe GPU operation as
-        // add_state_with_coef
-        void* tmp = allocate_quantum_state_host(this->_dim, device_number);
-        copy_quantum_state_from_device_to_device(
-            tmp, state->data(), this->dim, _cuda_stream, device_number);
-        state_multiply_host(coef, tmp, this->dim, _cuda_stream, device_number);
-        state_add_host(tmp, this->data(), this->dim, _cuda_stream,
-            device_number);
-        release_quantum_state_host(tmp, device_number);
+        // single-thread variant: reuse fused operation
+        state_add_scaled_host(coef, state->data(), this->data(), this->dim,
+            _cuda_stream, device_number);
     }
 
     /**

@@ -11,6 +11,9 @@ DllExport double measurement_distribution_entropy_host(
     void* state, ITYPE dim, void* stream, unsigned int device_number);
 DllExport void state_add_host(void* state_added, void* state, ITYPE dim,
     void* stream, unsigned int device_number);
+// fused operation: state += coef * state_added
+DllExport void state_add_scaled_host(CPPCTYPE coef, void* state_added,
+    void* state, ITYPE dim, void* stream, unsigned int device_number);
 DllExport void state_multiply_host(CPPCTYPE coef, void* state, ITYPE dim,
     void* stream, unsigned int device_number);
 DllExport CPPCTYPE inner_product_host(const void* bra_state,
